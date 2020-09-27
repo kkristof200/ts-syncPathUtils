@@ -1,20 +1,27 @@
 import fs from 'fs'
+export type SuccessCallback = () => void;
+export type ErrorCallback = (err: NodeJS.ErrnoException) => void;
+export type Callbacks = { success?: SuccessCallback, error?: ErrorCallback }
 
-export function rm(path: string) { return remove(path) }
-export function unlink(path: string) { return remove(path) }
-export function remove(path: string): boolean {
-    try {
-        fs.unlinkSync(path)
-
-        return true
-    } catch(err) {
-        console.error(err)
-
-        return false
-    }
+export function rm(path: string) { return this.remove(path) }
+export function unlink(path: string) { return this.remove(path) }
+export function remove(path: string, callbacks?: Callbacks) {
+    fs.unlink(path, (err => { solveCallbacks(callbacks, err) }))
 }
 
-export function write(path: string, obj: any) { return save(path, obj) }
+function solveCallbacks(callbacks: Callbacks, err: NodeJS.ErrnoException) {
+    if (!callbacks) return
+
+    if (err && callbacks.error) {
+        callbacks.error(err)
+
+        return
+    }
+
+    if (!err && callbacks.success) callbacks.success()
+}
+
+export function write(path: string, obj: any) { return this.save(path, obj) }
 export function save(path: string, obj: any): boolean {
     try {
         if (path.endsWith('.json')) {
@@ -32,13 +39,13 @@ export function save(path: string, obj: any): boolean {
 }
 
 export function read<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
-    return load(path, fallbackValue, saveIfNotExists)
+    return this.load(path, fallbackValue, saveIfNotExists)
 }
 export function load<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
-    if (!exists(path)) {
+    if (!this.exists(path)) {
         if (fallbackValue) {
             if (saveIfNotExists) {
-                save(path, fallbackValue)
+                this.save(path, fallbackValue)
             }
 
             return fallbackValue
@@ -64,7 +71,7 @@ export function exists(path: string): boolean {
     return fs.existsSync(path)
 }
 
-export function cp(src: string, dest: string) { return copy(src, dest) }
+export function cp(src: string, dest: string) { return this.copy(src, dest) }
 export function copy(src: string, dest: string): boolean {
     try {
         fs.copyFileSync(src, dest)
@@ -74,10 +81,10 @@ export function copy(src: string, dest: string): boolean {
         return false
     }
 
-    return exists(dest)
+    return this.exists(dest)
 }
 
-export function mv(src: string, dest: string) { return move(src, dest) }
+export function mv(src: string, dest: string) { return this.move(src, dest) }
 export function move(src: string, dest: string): boolean {
     try {
         fs.renameSync(src, dest)
@@ -87,7 +94,7 @@ export function move(src: string, dest: string): boolean {
         return false
     }
 
-    return exists(dest)
+    return this.exists(dest)
 }
 
 export function mkdir(path: string, recursive = true): boolean {
@@ -103,5 +110,5 @@ export function mkdir(path: string, recursive = true): boolean {
 }
 
 export function touch(path: string): boolean {
-    return save(path, null)
+    return this.save(path, null)
 }
