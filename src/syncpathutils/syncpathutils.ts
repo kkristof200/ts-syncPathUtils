@@ -1,110 +1,107 @@
 import fs from 'fs'
 
-export class SyncPathUtils {
-    static rm(path: string) { return this.remove(path) }
-    static unlink(path: string) { return this.remove(path) }
-    static delete(path: string) { return this.remove(path) }
-    static remove(path: string): boolean {
-        try {
-            fs.unlinkSync(path)
+export function rm(path: string) { return this.remove(path) }
+export function unlink(path: string) { return this.remove(path) }
+export function remove(path: string): boolean {
+    try {
+        fs.unlinkSync(path)
 
-            return true
-        } catch(err) {
-            console.error(err)
+        return true
+    } catch(err) {
+        console.error(err)
 
-            return false
-        }
+        return false
     }
+}
 
-    static write(path: string, obj: any) { return this.save(path, obj) }
-    static save(path: string, obj: any): boolean {
-        try {
-            if (path.endsWith('.json')) {
-                obj = JSON.stringify(obj)
-            }
-
-            fs.writeFileSync(path, obj)
-
-            return true
-        } catch(err) {
-            console.error(err)
-
-            return false
-        }
-    }
-
-    static read<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
-        return this.load(path, fallbackValue, saveIfNotExists)
-    }
-    static load<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
-        if (!this.exists(path)) {
-            if (fallbackValue) {
-                if (saveIfNotExists) {
-                    this.save(path, fallbackValue)
-                }
-
-                return fallbackValue
-            }
+export function write(path: string, obj: any) { return this.save(path, obj) }
+export function save(path: string, obj: any): boolean {
+    try {
+        if (path.endsWith('.json')) {
+            obj = JSON.stringify(obj)
         }
 
-        try {
-            var obj: any = fs.readFileSync(path)
+        fs.writeFileSync(path, obj)
 
-            if (path.endsWith('.json')) {
-                obj = JSON.parse(obj)
+        return true
+    } catch(err) {
+        console.error(err)
+
+        return false
+    }
+}
+
+export function read<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
+    return this.load(path, fallbackValue, saveIfNotExists)
+}
+export function load<T>(path: string, fallbackValue: any = null, saveIfNotExists: boolean = false): T {
+    if (!this.exists(path)) {
+        if (fallbackValue) {
+            if (saveIfNotExists) {
+                this.save(path, fallbackValue)
             }
-
-            return obj
-        } catch(err) {
-            console.error(err)
 
             return fallbackValue
         }
     }
 
-    static exists(path: string): boolean {
-        return fs.existsSync(path)
-    }
+    try {
+        var obj: any = fs.readFileSync(path)
 
-    static cp(src: string, dest: string) { return this.copy(src, dest) }
-    static copy(src: string, dest: string): boolean {
-        try {
-            fs.copyFileSync(src, dest)
-        } catch(err) {
-            console.error(err)
-
-            return false
+        if (path.endsWith('.json')) {
+            obj = JSON.parse(obj)
         }
 
-        return this.exists(dest)
+        return obj
+    } catch(err) {
+        console.error(err)
+
+        return fallbackValue
+    }
+}
+
+export function exists(path: string): boolean {
+    return fs.existsSync(path)
+}
+
+export function cp(src: string, dest: string) { return this.copy(src, dest) }
+export function copy(src: string, dest: string): boolean {
+    try {
+        fs.copyFileSync(src, dest)
+    } catch(err) {
+        console.error(err)
+
+        return false
     }
 
-    static mv(src: string, dest: string) { return this.move(src, dest) }
-    static move(src: string, dest: string): boolean {
-        try {
-            fs.renameSync(src, dest)
-        } catch(err) {
-            console.error(err)
+    return this.exists(dest)
+}
 
-            return false
-        }
+export function mv(src: string, dest: string) { return this.move(src, dest) }
+export function move(src: string, dest: string): boolean {
+    try {
+        fs.renameSync(src, dest)
+    } catch(err) {
+        console.error(err)
 
-        return this.exists(dest)
+        return false
     }
 
-    static mkdir(path: string, recursive = true): boolean {
-        try {
-            fs.mkdirSync(path, { recursive: recursive })
+    return this.exists(dest)
+}
 
-            return true
-        } catch(err) {
-            console.log(err)
+export function mkdir(path: string, recursive = true): boolean {
+    try {
+        fs.mkdirSync(path, { recursive: recursive })
 
-            return false
-        }
+        return true
+    } catch(err) {
+        console.log(err)
+
+        return false
     }
+}
 
-    static touch(path: string): boolean {
-        return this.save(path, null)
-    }
+export function touch(path: string): boolean {
+    return this.save(path, null)
 }
