@@ -20,6 +20,6 @@
     },
     "author": "Kristóf-Attila Kovács",
     "name": "syncpathutils",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "sync path utils, such as save, load, exists, mkdir, touch etc"
 }
